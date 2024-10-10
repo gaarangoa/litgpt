@@ -1,54 +1,7 @@
-<div align="center">
-
-
-# ⚡ LitGPT
-
-**20+ high-performance LLMs with recipes to pretrain, finetune, and deploy at scale.**
-
-<pre>
-✅ From scratch implementations     ✅ No abstractions    ✅ Beginner friendly   
-✅ Flash attention                  ✅ FSDP               ✅ LoRA, QLoRA, Adapter
-✅ Reduce GPU memory (fp4/8/16/32)  ✅ 1-1000+ GPUs/TPUs  ✅ 20+ LLMs            
-</pre>
-
-
----
-
-
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pytorch-lightning)
-![cpu-tests](https://github.com/lightning-AI/lit-stablelm/actions/workflows/cpu-tests.yml/badge.svg) [![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/Lightning-AI/lit-stablelm/blob/master/LICENSE) [![Discord](https://img.shields.io/discord/1077906959069626439)](https://discord.gg/VptPCZkGNa)
-
-<p align="center">
-  <a href="#quick-start">Quick start</a> •
-  <a href="#choose-from-20-llms">Models</a> •
-  <a href="#finetune-an-llm">Finetune</a> • 
-  <a href="#deploy-an-llm">Deploy</a> •    
-  <a href="#all-workflows">All workflows</a> • 
-  <a href="#state-of-the-art-features">Features</a> •
-  <a href="#training-recipes">Recipes (YAML)</a> •
-  <a href="https://lightning.ai/">Lightning AI</a> •
-    <a href="#tutorials">Tutorials</a>
-</p>
-
-&nbsp;
-  
-<a target="_blank" href="https://lightning.ai/lightning-ai/studios/litgpt-quick-start">
-  <img src="https://pl-bolts-doc-images.s3.us-east-2.amazonaws.com/app-2/get-started-badge.svg" height="36px" alt="Get started"/>
-</a>
-
-&nbsp;
-
-</div>
+# LitGPT
 
 # Use, finetune, pretrain, and deploy LLMs Lightning fast ⚡⚡
 Every LLM is implemented from scratch with **no abstractions** and **full control**, making them blazing fast, minimal, and performant at enterprise scale.
-
-✅ **Enterprise ready -** Apache 2.0 for unlimited enterprise use.    
-✅ **Developer friendly -** Easy debugging with no abstraction layers and single file implementations.    
-✅ **Optimized performance -** Models designed to maximize performance, reduce costs, and speed up training.    
-✅ **Proven recipes -** Highly-optimized training/finetuning recipes tested at enterprise scale.    
-
-&nbsp;
 
 # Quick start
 Install LitGPT
@@ -66,14 +19,6 @@ print(text)
 # Corrected Sentence: Every fall, the family goes to the mountains.       
 ```
 
-&nbsp;
-
-✅ Optimized for fast inference    
-✅ Quantization    
-✅ Runs on low-memory GPUs    
-✅ No layers of internal abstractions    
-✅ Optimized for production scale   
-
 <details>
   <summary>Advanced install options</summary>
 
@@ -87,8 +32,6 @@ pip install -e '.[all]'
 </details>
 
 [Explore the full Python API docs](tutorials/python-api.md).
-
-&nbsp;
 
 ---
 # Choose from 20+ LLMs
@@ -154,17 +97,39 @@ Every model is written from scratch to maximize performance and remove layers of
 ---
 
 # Workflows
+## Use using python jupyter
 
-<p align="center">
-  <a href="#finetune-an-llm">Finetune</a> • 
-  <a href="#pretrain-an-llm">Pretrain</a> • 
-  <a href="#continue-pretraining-an-llm">Continued pretraining</a> •    
-    <a href="#evaluate-an-llm">Evaluate</a> •
-    <a href="#deploy-an-llm">Deploy</a> •
-    <a href="#test-an-llm">Test</a>
-</p>
+```python
 
-&nbsp;
+from litgpt.finetune.lora import setup
+from litgpt.args import TrainArgs
+
+data = Alpaca(
+    file_name = '../data/my_custom_dataset.json'
+)
+
+setup(
+    checkpoint_dir='../models/checkpoints/EleutherAI/pythia-14m/',
+    out_dir = '../models/custom-model/',
+    data = data,
+    train = TrainArgs(save_interval=1000,
+                    log_interval=1,
+                    global_batch_size=16,
+                    micro_batch_size=1,
+                    lr_warmup_steps=100,
+                    lr_warmup_fraction=None,
+                    epochs=1,
+                    max_tokens=None,
+                    max_steps=None,
+                    max_seq_length=512,
+                    tie_embeddings=None,
+                    max_norm=None,
+                    min_lr=6e-05)
+)
+
+```
+
+
 
 Use the command line interface to run advanced workflows such as pretraining or finetuning on your own data.   
 
@@ -186,15 +151,6 @@ litgpt  evaluate  meta-llama/Llama-3.2-3B-Instruct
 ---- 
 
 ## Finetune an LLM
-
-<div align="center">
-<a target="_blank" href="https://lightning.ai/lightning-ai/studios/litgpt-finetune">
-  <img src="https://pl-bolts-doc-images.s3.us-east-2.amazonaws.com/app-2/run-on-studio.svg" height="36px" alt="Run on Studios"/>
-</a>
-</div>
-
-&nbsp;
-
 Finetuning is the process of taking a pretrained AI model and further training it on a smaller, specialized dataset tailored to a specific task or application.
 
 
@@ -225,15 +181,6 @@ litgpt serve out/custom-model/final
 ---- 
 
 ## Deploy an LLM
-
-<div align="center">
-<a target="_blank" href="https://lightning.ai/lightning-ai/studios/litgpt-serve">
-  <img src="https://pl-bolts-doc-images.s3.us-east-2.amazonaws.com/app-2/deploy-on-studios.svg" height="36px" alt="Deploy on Studios"/>
-</a>
-</div>
-
-&nbsp;
-
 Deploy a pretrained or finetune LLM to use it in real-world applications. Deploy, automatically sets up a web server that can be accessed by a website or app.   
 
 ```bash
@@ -281,15 +228,6 @@ litgpt evaluate microsoft/phi-2 --tasks 'truthfulqa_mc2,mmlu'
 ---- 
 
 ##  Test an LLM
-
-<div align="center">
-<a target="_blank" href="https://lightning.ai/lightning-ai/studios/litgpt-chat">
-  <img src="https://pl-bolts-doc-images.s3.us-east-2.amazonaws.com/app-2/run-on-studio.svg" height="36px" alt="Run on Studios"/>
-</a>
-</div>
-
-&nbsp;
-    
 Test how well the model works via an interactive chat. Use the `chat` command to chat, extract embeddings, etc...
 
 Here's an example showing how to use the Phi-2 LLM:
@@ -325,15 +263,6 @@ The download of certain models requires an additional access token. You can read
 ----
 
 ## Pretrain an LLM
-
-<div align="center">
-<a target="_blank" href="https://lightning.ai/lightning-ai/studios/litgpt-pretrain">
-  <img src="https://pl-bolts-doc-images.s3.us-east-2.amazonaws.com/app-2/run-on-studio.svg" height="36px" alt="Run on Studios"/>
-</a>
-</div>
-
-&nbsp;
-
 Pretraining is the process of teaching an AI model by exposing it to a large amount of data before it is fine-tuned for specific tasks.
 
 <details>
@@ -370,15 +299,6 @@ litgpt chat out/custom-model/final
 ---- 
 
 ## Continue pretraining an LLM
-
-<div align="center">
-<a target="_blank" href="https://lightning.ai/lightning-ai/studios/litgpt-continue-pretraining">
-  <img src="https://pl-bolts-doc-images.s3.us-east-2.amazonaws.com/app-2/run-on-studio.svg" height="36px" alt="Run on Studios"/>
-</a>
-</div>
-
-&nbsp;
-
 Continued pretraining is another way of finetuning that specializes an already pretrained model by training on custom data:
 
 <details>
@@ -411,31 +331,6 @@ litgpt chat out/custom-model/final
 &nbsp;
 
 ---- 
-
-# State-of-the-art features
-
-✅ &nbsp;State-of-the-art optimizations: Flash Attention v2, multi-GPU support via fully-sharded data parallelism, [optional CPU offloading](tutorials/oom.md#do-sharding-across-multiple-gpus), and [TPU and XLA support](extensions/xla).
-
-✅ &nbsp;[Pretrain](tutorials/pretrain.md), [finetune](tutorials/finetune.md), and [deploy](tutorials/inference.md)
-
-✅ &nbsp;Reduce compute requirements with low-precision settings: FP16, BF16, and FP16/FP32 mixed.
-
-✅ &nbsp;Lower memory requirements with [quantization](tutorials/quantize.md): 4-bit floats, 8-bit integers, and double quantization.
-
-✅ &nbsp;[Configuration files](config_hub) for great out-of-the-box performance.
-
-✅ &nbsp;Parameter-efficient finetuning: [LoRA](tutorials/finetune_lora.md), [QLoRA](tutorials/finetune_lora.md), [Adapter](tutorials/finetune_adapter.md), and [Adapter v2](tutorials/finetune_adapter.md).
-
-✅ &nbsp;[Exporting](tutorials/convert_lit_models.md) to other popular model weight formats.
-
-✅ &nbsp;Many popular datasets for [pretraining](tutorials/pretrain.md) and [finetuning](tutorials/prepare_dataset.md), and [support for custom datasets](tutorials/prepare_dataset.md#preparing-custom-datasets-for-instruction-finetuning).
-
-✅ &nbsp;Readable and easy-to-modify code to experiment with the latest research ideas.
-
-&nbsp;
-
----
-
 # Training recipes
 
 LitGPT comes with validated recipes (YAML configs) to train models under different conditions.  We've generated these recipes based on the parameters we found to perform the best for different training conditions.
@@ -615,99 +510,6 @@ litgpt finetune \
 
 ----
 
-# Project highlights
-
-LitGPT powers many great AI projects, initiatives, challenges and of course enterprises. Please submit a pull request to be considered for a feature.   
-
-<details>
-  <summary>📊 SAMBA: Simple Hybrid State Space Models for Efficient Unlimited Context Language Modeling</summary>
-
-The [Samba](https://github.com/microsoft/Samba) project by researchers at Microsoft is built on top of the LitGPT code base and combines state space models with sliding window attention, which outperforms pure state space models.
-
-</details>
-
-<details>
-  <summary>🏆 NeurIPS 2023 Large Language Model Efficiency Challenge: 1 LLM + 1 GPU + 1 Day</summary>
-
-The LitGPT repository was the official starter kit for the [NeurIPS 2023 LLM Efficiency Challenge](https://llm-efficiency-challenge.github.io), which is a competition focused on finetuning an existing non-instruction tuned LLM for 24 hours on a single GPU.
-
-</details>
-
-<details>
-  <summary>🦙 TinyLlama: An Open-Source Small Language Model</summary>
-
-
-LitGPT powered the [TinyLlama project](https://github.com/jzhang38/TinyLlama) and [TinyLlama: An Open-Source Small Language Model](https://arxiv.org/abs/2401.02385) research paper.
-
-</details>
-
-<details>
-  <summary>🍪 MicroLlama: MicroLlama-300M</summary>
-
-[MicroLlama](https://github.com/keeeeenw/MicroLlama) is a 300M Llama model pretrained on 50B tokens powered by TinyLlama and LitGPT.
-</details>
-
-<details>
-  <summary>🔬 Pre-training Small Base LMs with Fewer Tokens</summary>
-
-The research paper ["Pre-training Small Base LMs with Fewer Tokens"](https://arxiv.org/abs/2404.08634), which utilizes LitGPT, develops smaller base language models by inheriting a few transformer blocks from larger models and training on a tiny fraction of the data used by the larger models. It demonstrates that these smaller models can perform comparably to larger models despite using significantly less training data and resources.
-
-</details>
-
-&nbsp;
-
-----
-
-# Community
-
-We welcome all individual contributors, regardless of their level of experience or hardware. Your contributions are valuable, and we are excited to see what you can accomplish in this collaborative and supportive environment.
-
-- [Request a feature](https://github.com/Lightning-AI/litgpt/issues)    
-- [Submit your first contribution](https://lightning.ai/pages/community/tutorial/how-to-contribute-to-litgpt/)    
-- [Join our Discord](https://discord.gg/VptPCZkGNa)    
-
-&nbsp;
-
-# Tutorials   
-
-🚀 [Get started](tutorials/0_to_litgpt.md)    
-⚡️  [Finetuning, incl. LoRA, QLoRA, and Adapters](tutorials/finetune.md)    
-🤖 [Pretraining](tutorials/pretrain.md)    
-💬 [Model evaluation](tutorials/evaluation.md)    
-📘 [Supported and custom datasets](tutorials/prepare_dataset.md)    
-🧹 [Quantization](tutorials/quantize.md)    
-🤯 [Tips for dealing with out-of-memory (OOM) errors](tutorials/oom.md)   
-🧑🏽‍💻 [Using cloud TPUs](extensions/xla)
-
-&nbsp;
-
-----
-
-### Acknowledgments
-
-This implementation extends on [Lit-LLaMA](https://github.com/lightning-AI/lit-llama) and [nanoGPT](https://github.com/karpathy/nanoGPT), and it's **powered by [Lightning Fabric](https://lightning.ai/docs/fabric/stable/) ⚡**.
-
-- [@karpathy](https://github.com/karpathy) for [nanoGPT](https://github.com/karpathy/nanoGPT)
-- [@EleutherAI](https://github.com/EleutherAI) for [GPT-NeoX](https://github.com/EleutherAI/gpt-neox) and the [Evaluation Harness](https://github.com/EleutherAI/lm-evaluation-harness)
-- [@TimDettmers](https://github.com/TimDettmers) for [bitsandbytes](https://github.com/TimDettmers/bitsandbytes)
-- [@Microsoft](https://github.com/microsoft) for [LoRA](https://github.com/microsoft/LoRA)
-- [@tridao](https://github.com/tridao) for [Flash Attention 2](https://github.com/Dao-AILab/flash-attention)
-
 ### License
 
 LitGPT is released under the [Apache 2.0](https://github.com/Lightning-AI/litgpt/blob/main/LICENSE) license.
-
-### Citation
-
-If you use LitGPT in your research, please cite the following work:
-
-```bibtex
-@misc{litgpt-2023,
-  author       = {Lightning AI},
-  title        = {LitGPT},
-  howpublished = {\url{https://github.com/Lightning-AI/litgpt}},
-  year         = {2023},
-}
-```
-
-&nbsp;
