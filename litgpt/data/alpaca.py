@@ -99,5 +99,32 @@ class Alpaca(DataModule):
             collate_fn=get_sft_collate_fn(max_seq_length=self.max_seq_length, ignore_index=self.ignore_index),
         )
 
-    def download_if_missing(self, ):
-        pass
+
+def download_if_missing(file_path: Path, file_url: str, mode: str = "w", stream: bool = False) -> None:
+    """Downloads the raw json data file and saves it in the given destination."""
+    if file_path.exists() and file_path.stat().st_size > 0:
+        return
+    requests_available = RequirementCache("requests")
+    if not requests_available:
+        raise ModuleNotFoundError(str(requests_available))
+    import requests
+
+    response = requests.get(file_url, stream=stream)
+    with open(file_path, mode, encoding=None if mode == "wb" else "utf-8") as f:
+        if stream:
+            # credit: https://github.com/karpathy/llama2.c/blob/b3c4b6/tinystories.py#L25-L38
+            from tqdm import tqdm
+
+            pbar = tqdm(
+                desc=str(file_path),
+                total=int(response.headers.get("content-length", 0)),
+                unit="iB",
+                unit_scale=True,
+                unit_divisor=1024,
+            )
+            for data in response.iter_content(chunk_size=1024):
+                size = f.write(data)
+                pbar.update(size)
+            pbar.close()
+        else:
+            f.write(response.text)
