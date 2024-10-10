@@ -14,9 +14,6 @@ from litgpt.data import DataModule, SFTDataset, get_sft_collate_fn
 from litgpt.prompts import PromptStyle
 from litgpt.tokenizer import Tokenizer
 
-_URL = "https://raw.githubusercontent.com/tloen/alpaca-lora/main/alpaca_data_cleaned_archive.json"
-
-
 @dataclass
 class Alpaca(DataModule):
     """Alpaca data module for supervised finetuning."""
@@ -33,12 +30,8 @@ class Alpaca(DataModule):
     """The random seed for creating the train/val splits and shuffling the dataset."""
     num_workers: int = 4
     """How many DataLoader processes to use for loading."""
-    download_dir: Path = Path("./data/alpaca")
-    """The directory in which the downloaded dataset gets saved."""
-    file_url: str = field(repr=False, default=_URL)
-    """The URL from where to download the dataset."""
     file_name: str = field(repr=False, default="alpaca_data_cleaned_archive.json")
-    """The name of the dataset file to download."""
+    """The name of the dataset file to process."""
 
     tokenizer: Optional[Tokenizer] = field(default=None, init=False, repr=False)
     batch_size: int = field(default=1, init=False, repr=False)
@@ -58,12 +51,8 @@ class Alpaca(DataModule):
         self.batch_size = batch_size
         self.max_seq_length = -1 if max_seq_length is None else max_seq_length
 
-    def prepare_data(self) -> None:
-        self.download_dir.mkdir(parents=True, exist_ok=True)
-        download_if_missing(self.download_dir / self.file_name, self.file_url)
-
     def setup(self, stage: str = "") -> None:
-        with open(self.download_dir / self.file_name, "r", encoding="utf-8") as file:
+        with open(self.file_name, "r", encoding="utf-8") as file:
             data = json.load(file)
 
         # Partition the dataset into train and test
@@ -109,33 +98,3 @@ class Alpaca(DataModule):
             num_workers=self.num_workers,
             collate_fn=get_sft_collate_fn(max_seq_length=self.max_seq_length, ignore_index=self.ignore_index),
         )
-
-
-def download_if_missing(file_path: Path, file_url: str, mode: str = "w", stream: bool = False) -> None:
-    """Downloads the raw json data file and saves it in the given destination."""
-    if file_path.exists() and file_path.stat().st_size > 0:
-        return
-    requests_available = RequirementCache("requests")
-    if not requests_available:
-        raise ModuleNotFoundError(str(requests_available))
-    import requests
-
-    response = requests.get(file_url, stream=stream)
-    with open(file_path, mode, encoding=None if mode == "wb" else "utf-8") as f:
-        if stream:
-            # credit: https://github.com/karpathy/llama2.c/blob/b3c4b6/tinystories.py#L25-L38
-            from tqdm import tqdm
-
-            pbar = tqdm(
-                desc=str(file_path),
-                total=int(response.headers.get("content-length", 0)),
-                unit="iB",
-                unit_scale=True,
-                unit_divisor=1024,
-            )
-            for data in response.iter_content(chunk_size=1024):
-                size = f.write(data)
-                pbar.update(size)
-            pbar.close()
-        else:
-            f.write(response.text)
