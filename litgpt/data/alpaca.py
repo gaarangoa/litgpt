@@ -98,3 +98,6 @@ class Alpaca(DataModule):
             num_workers=self.num_workers,
             collate_fn=get_sft_collate_fn(max_seq_length=self.max_seq_length, ignore_index=self.ignore_index),
         )
+
+    def download_if_missing(self, ):
+        pass

@@ -1,6 +1,6 @@
 # LitGPT
 
-# Use, finetune, pretrain, and deploy LLMs Lightning fast ⚡⚡
+# Use, finetune, pretrain, and deploy LLMs Lightning fast
 Every LLM is implemented from scratch with **no abstractions** and **full control**, making them blazing fast, minimal, and performant at enterprise scale.
 
 # Quick start
