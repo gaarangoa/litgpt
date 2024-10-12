@@ -250,12 +250,22 @@ def main(
     save_path = out_dir / "final" / "lit_model.pth.lora"
     save_path.parent.mkdir(parents=True, exist_ok=True)
     save_lora_checkpoint(fabric, model, save_path)
+
+    fabric.print('saving lora checkpoint to: {} ... done'.format(save_path))
+
     if fabric.global_rank == 0:
         # Copy checkpoint files from original checkpoint dir
         copy_config_files(checkpoint_dir, save_path.parent)
+        fabric.print('copying config files: {} to {} ... done'.format(checkpoint_dir, save_path.parent))
+
         save_hyperparameters(setup, save_path.parent)
+        fabric.print('Saving hyperparameters: {} ... done'.format(save_path.parent))
+
         save_prompt_style(data.prompt_style, save_path.parent)
+        fabric.print('Saving save_prompt_style: {} ... done'.format(save_path.parent))
+
         merge_lora(checkpoint_dir=save_path.parent)
+        fabric.print('Merging LORA to main model: {} ... done'.format(save_path.parent))
 
 
 def fit(
