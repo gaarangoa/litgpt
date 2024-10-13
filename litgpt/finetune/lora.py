@@ -103,7 +103,7 @@ def setup(
         access_token: Optional API token to access models with restrictions.
     """
     checkpoint_dir = auto_download_checkpoint(model_name=checkpoint_dir, access_token=access_token)
-    pprint(locals())
+
     data = Alpaca() if data is None else data
     devices = parse_devices(devices)
     out_dir = init_out_dir(out_dir)
@@ -181,6 +181,9 @@ def main(
     eval: EvalArgs,
     optimizer: Union[str, Dict],
 ) -> None:
+
+    pprint(locals())
+
     validate_args(train, eval)
 
     tokenizer = Tokenizer(checkpoint_dir)
@@ -256,17 +259,10 @@ def main(
     if fabric.global_rank == 0:
         # Copy checkpoint files from original checkpoint dir
         copy_config_files(checkpoint_dir, save_path.parent)
-        fabric.print('copying config files: {} to {} ... done'.format(checkpoint_dir, save_path.parent))
-
-        save_hyperparameters(setup, save_path.parent)
-        fabric.print('Saving hyperparameters: {} ... done'.format(save_path.parent))
-
+        save_hyperparameters(locals(), save_path.parent)
         save_prompt_style(data.prompt_style, save_path.parent)
-        fabric.print('Saving save_prompt_style: {} ... done'.format(save_path.parent))
-
         merge_lora(checkpoint_dir=save_path.parent)
-        fabric.print('Merging LORA to main model: {} ... done'.format(save_path.parent))
-
+        
 
 def fit(
     fabric: L.Fabric,
@@ -376,7 +372,7 @@ def fit(
             save_lora_checkpoint(fabric, model, checkpoint_file)
             if fabric.global_rank == 0:
                 copy_config_files(checkpoint_dir, checkpoint_file.parent)
-                save_hyperparameters(setup, checkpoint_file.parent)
+                save_hyperparameters(locals(), checkpoint_file.parent)
                 save_prompt_style(data.prompt_style, checkpoint_file.parent)
 
 

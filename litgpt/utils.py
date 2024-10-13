@@ -16,6 +16,7 @@ from pathlib import Path
 import subprocess
 from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Literal, Mapping, Optional, TypeVar, Union
 import warnings
+import yaml
 
 import lightning as L
 import torch
@@ -29,7 +30,7 @@ from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.cli import instantiate_class
 from torch.serialization import normalize_storage_type
 from typing_extensions import Self
-
+from pprint import pprint
 
 if TYPE_CHECKING:
     from litgpt import GPT, Config
@@ -481,29 +482,17 @@ def capture_hparams() -> Dict[str, Any]:
     return hparams
 
 
-def save_hyperparameters(function: callable, checkpoint_dir: Path) -> None:
-    """Captures the CLI parameters passed to `function` without running `function` and saves them to the checkpoint."""
-    from jsonargparse import capture_parser
+def save_hyperparameters(parameters: any, checkpoint_dir: Path) -> None:
+    
+    tmp = {}
+    tmp.update({"checkpoint_dir": str(parameters['checkpoint_dir'])})
+    tmp.update({"out_dir": str(parameters['out_dir'])})
+    tmp.update({'seed': parameters['seed']})
+    
+    parameters = {i:j for i,j in parameters['config'].__dict__.items() if 'lora_' in i}
+    parameters.update(tmp)
 
-    # TODO: Make this more robust
-    # This hack strips away the subcommands from the top-level CLI
-    # to parse the file as if it was called as a script
-    known_commands = [
-        ("finetune_full",),  # For subcommands, use `("finetune", "full")` etc
-        ("finetune_lora",),
-        ("finetune_adapter",),
-        ("finetune_adapter_v2",),
-        ("finetune",),
-        ("pretrain",),
-    ]
-    for known_command in known_commands:
-        unwanted = slice(1, 1 + len(known_command))
-        if tuple(sys.argv[unwanted]) == known_command:
-            sys.argv[unwanted] = []
-
-    parser = capture_parser(lambda: CLI(function))
-    config = parser.parse_args()
-    parser.save(config, checkpoint_dir / "hyperparameters.yaml", overwrite=True)
+    yaml.dump(parameters, open('{}/hyperparameters.yaml'.format(checkpoint_dir), 'w'))
 
 
 def save_config(config: "Config", checkpoint_dir: Path) -> None:
